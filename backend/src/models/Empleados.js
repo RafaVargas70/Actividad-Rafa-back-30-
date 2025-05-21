@@ -1,6 +1,6 @@
-import { Schema, model } from "mongoose";
+import { Schema } from "mongoose";
 
-const clientesSchema = new Schema(
+const empleadosSchema = new Schema(
 
     {
     name: {
@@ -28,6 +28,21 @@ const clientesSchema = new Schema(
       require: true,
     },
 
+    puesto: {
+        type: String,
+        require: true,
+      },
+
+      fecha_contratacion: {
+        type: Date,
+        require: true,
+      },
+
+      salario: {
+        type: Number,
+        require: true,
+      },
+
     DUI: {
       type: String,
       require: true,
@@ -46,4 +61,4 @@ const clientesSchema = new Schema(
 );
 
 
-export default model("clientes", clientesSchema);
+export default model("empleados", empleadosSchema);
