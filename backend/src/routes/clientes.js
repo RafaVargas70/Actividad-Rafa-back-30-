@@ -12,6 +12,6 @@ router
 router
   .route("/:id")
   .put(clientesController.actualizarClientes)
-  .delete(clientesController.deleteclientes);
+  .delete(clientesController.eliminarclientes);
 
 export default router;

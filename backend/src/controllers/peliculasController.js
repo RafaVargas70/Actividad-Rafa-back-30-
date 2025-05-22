@@ -1,4 +1,13 @@
 import peliculasModel from '../models/peliculas.js';
+import { v2 as cloudinary } from "cloudinary";
+
+import {config} from "../config.js";
+
+cloudinary.config({
+  cloud_name: config.cloudinary.cloud_name,
+  api_key: config.cloudinary.cloudinary_api_key,
+  api_secret: config.cloudinary.cloudinary_api_secret,
+});
 
 const peliculasController = {};
  
@@ -14,9 +23,20 @@ peliculasController.getpeliculas = async (req, res) => {
 //post
 peliculasController.crearpeliculas = async (req, res) => {
 
-  const { nombre, correo, contrasenia, telefono, direccion, puesto, fecha_contratacion, salario, DUI } = req.body;
+  const { titulo, descripcion, director, genero, anio, duracion } = req.body;
 
-  const newpelicula = new peliculasModel({ nombre, correo, contrasenia, telefono, direccion, puesto, fecha_contratacion, salario, DUI });
+    let imageURL = "";
+
+if (req.file) {
+    const result = await cloudinary.uploader.upload(req.file.path, {
+      folder: "public",
+      allowed_formats: ["jpg", "png", "jpeg"],
+    });
+    imageURL = result.secure_url;
+  }
+
+
+  const newpelicula = new peliculasModel({ titulo, descripcion, director, genero, anio, duracion, image: imageURL });
 
   await newpelicula.save();
 
@@ -27,33 +47,28 @@ peliculasController.crearpeliculas = async (req, res) => {
 //delete
 peliculasController.eliminarpeliculas = async (req, res) => {
     const { id } = req.params;
-    const pelicula = await peliculasModel.findByIdAndDelete(id);
-    if (!pelicula) return res.status(404).json({ message: 'No se encontro la pelicula' });
-    // Borrar de Cloudinary si tiene public_id guardado (opcional)
-    if (pelicula.imagen) {
-      const segments = pelicula.imagen.split('/');
-      const filename = segments[segments.length - 1].split('.')[0];
-      await cloudinary.uploader.destroy(`peliculas/${filename}`);
-    }
+    const eliminaPelicula = await peliculasModel.findByIdAndDelete(id);
+    if (!eliminaPelicula) return res.status(404).json({ message: 'No se encontro la pelicula' });
     res.json({ message: 'Se elimino de la pelicula correctamente' });
   };
  
 //put
 peliculasController.actualizarpeliculas = async (req, res) => {
 
-  const { nombre, correo, contrasenia, telefono, direccion, puesto, fecha_contratacion, salario, DUI } = req.body;
+  const { titulo, descripcion, director, genero, anio, duracion  } = req.body;
+  let imageURL = "";
 
-  const updated = await peliculasModel.findByIdAndUpdate(
+    if (req.file) {
+      const result = await cloudinary.uploader.upload(req.file.path, {
+        folder: "public",
+        allowed_formats: ["jpg", "png", "jpeg"],
+      });
+      imageURL = result.secure_url;
+    }
 
-    req.params.id,
+    const actualizaPelicula = await peliculasModel.findByIdAndUpdate(req.params.id, { titulo, descripcion, director, genero, anio, duracion, image: imageURL }, { new: true });
 
-    { nombre, correo, contrasenia, telefono, direccion, puesto, fecha_contratacion, salario, DUI },
-
-    { new: true }
-
-  );
-
-  if (!updated) return res.status(404).json({ message: 'No se encontro la pelicula' });
+  if (!actualizaPelicula) return res.status(404).json({ message: 'No se encontro la pelicula' });
 
   res.json({ message: 'Se actualizo la pelicula' });
 
