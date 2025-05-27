@@ -1,5 +1,5 @@
 import express from "express";
-import brandController from "../controllers/brandController.js";
+import peliculasController from "../controllers/peliculasController.js";
 import multer from "multer";
 
 const router = express.Router();
@@ -8,12 +8,12 @@ const router = express.Router();
 const upload = multer({dest: "public/"})
 
 router.route("/")
-    .get(brandController.getAllBrand)
-    .post(upload.single("image"), brandController.insertBrand);
+    .get(peliculasController.getpeliculas)
+    .post(upload.single("image"), peliculasController.crearpeliculas);
 
 
     router.route("/:id")
-    .put(upload.single("image"), brandController.putBrand)
-    .delete(brandController.deleteBrand);
+    .put(upload.single("image"), peliculasController.actualizarpeliculas)
+    .delete(peliculasController.eliminarpeliculas);
 
 export default router;
